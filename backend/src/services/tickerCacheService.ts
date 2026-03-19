@@ -51,8 +51,9 @@ const buildTickerBatch = async (): Promise<void> => {
       };
     })
   );
-
-  cachedTickerBatch = batch.filter((item) => Number.isFinite(item.currentPrice));
+  
+  cachedTickerBatch = batch.filter((item) =>
+    typeof item.currentPrice === 'number' && Number.isFinite(item.currentPrice) && typeof item.percentChange === 'number' && Number.isFinite(item.percentChange) );
   lastTickerBatchRefreshAt = Date.now();
 };
 
