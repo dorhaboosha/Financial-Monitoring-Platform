@@ -9,6 +9,7 @@ build/
 .env
 .env.local
 .env.production
+.env.development
 
 # logs
 *.log
@@ -30,3 +31,19 @@ coverage/
 # local db artifacts
 *.db
 *.db-journal
+
+# vite
+vite.svg
+
+# typescript build info
+*.tsbuildinfo
+
+# prisma generated artifacts if any local temp files appear
+prisma/dev.db
+
+# misc
+.tmp/
+temp/
+
+# macOS / windows misc
+Thumbs.db
