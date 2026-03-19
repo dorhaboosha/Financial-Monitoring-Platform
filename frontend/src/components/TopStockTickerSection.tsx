@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Heading,
-  HStack,
   Spinner,
   Text,
   VStack,
@@ -10,6 +9,7 @@ import {
 import { useTickerStocks } from '../hooks/useTickerStocks';
 import { useAddWatchlistStock } from '../hooks/useWatchlistMutations';
 import TickerStockItem from './TickerStockItem';
+import "./TopStockTicker.css";
 
 function TopStockTickerSection() {
   const { data, isLoading, isError, error } = useTickerStocks();
@@ -18,6 +18,9 @@ function TopStockTickerSection() {
   const handleAdd = (symbol: string) => {
     addMutation.mutate({ symbol });
   };
+
+  const tickerStocks = data?.data ?? [];
+  const duplicatedStocks = [...tickerStocks, ...tickerStocks];
 
   return (
     <Box width="100%">
@@ -50,20 +53,20 @@ function TopStockTickerSection() {
               </Alert.Description>
             </Alert.Content>
           </Alert.Root>
-        ) : !data?.data.length ? (
+        ) : !tickerStocks.length ? (
           <Text color="gray.500">No ticker stocks available.</Text>
         ) : (
-          <Box overflowX="auto" pb={2}>
-            <HStack gap={4} align="stretch" minW="max-content">
-              {data.data.map((stock) => (
+          <Box className="ticker-wrapper" pb={2}>
+            <Box className="ticker-track">
+              {duplicatedStocks.map((stock, index) => (
                 <TickerStockItem
-                  key={stock.symbol}
+                  key={`${stock.symbol}-${index}`}
                   stock={stock}
                   onAdd={handleAdd}
                   isAdding={addMutation.isPending}
                 />
               ))}
-            </HStack>
+            </Box>
           </Box>
         )}
       </VStack>

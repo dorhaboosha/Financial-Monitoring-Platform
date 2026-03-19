@@ -23,7 +23,8 @@ function TickerStockItem({
 
   return (
     <Box
-      minW="260px"
+      w="260px"
+      flexShrink={0}
       borderWidth="1px"
       borderRadius="lg"
       p={4}
