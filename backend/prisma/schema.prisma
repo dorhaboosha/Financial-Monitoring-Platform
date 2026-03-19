@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AlertType {
+  PRICE_ABOVE
+  PRICE_BELOW
+  PERCENT_CHANGE_ABOVE
+  PERCENT_CHANGE_BELOW
+}
+
+model AnonymousUser {
+  id              String           @id @default(uuid())
+  anonymousId     String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  watchlistStocks WatchlistStock[]
+  alerts          Alert[]
+  notifications   Notification[]
+
+  @@map("anonymous_users")
+}
+
+model WatchlistStock {
+  id        String   @id @default(uuid())
+  userId    String
+  symbol    String
+  createdAt DateTime @default(now())
+
+  user AnonymousUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol])
+  @@map("watchlist_stocks")
+}
+
+model Alert {
+  id        String    @id @default(uuid())
+  userId    String
+  symbol    String
+  type      AlertType
+  threshold Decimal
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user          AnonymousUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@map("alerts")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  alertId     String
+  symbol      String
+  message     String
+  isRead      Boolean  @default(false)
+  triggeredAt DateTime @default(now())
+
+  user  AnonymousUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert Alert         @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
