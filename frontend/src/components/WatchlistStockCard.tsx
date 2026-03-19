@@ -4,12 +4,14 @@ import type { WatchlistStock } from '../types/watchlist';
 interface WatchlistStockCardProps {
   stock: WatchlistStock;
   onRemove: (symbol: string) => void;
+  onDetails: (symbol: string) => void;
   isRemoving?: boolean;
 }
 
 function WatchlistStockCard({
   stock,
   onRemove,
+  onDetails,
   isRemoving = false,
 }: WatchlistStockCardProps) {
   return (
@@ -25,14 +27,25 @@ function WatchlistStockCard({
             </Text>
           </VStack>
 
-          <Button
-            colorScheme="red"
-            variant="outline"
-            onClick={() => onRemove(stock.symbol)}
-            loading={isRemoving}
-          >
-            Remove
-          </Button>
+          <HStack gap={2}>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="blue"
+              onClick={() => onDetails(stock.symbol)}
+            >
+              Details
+            </Button>
+            <Button
+              size="sm"
+              colorPalette="red"
+              variant="outline"
+              onClick={() => onRemove(stock.symbol)}
+              loading={isRemoving}
+            >
+              Remove
+            </Button>
+          </HStack>
         </HStack>
       </Card.Body>
     </Card.Root>

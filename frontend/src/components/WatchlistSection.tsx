@@ -13,6 +13,7 @@ import {
   useAddWatchlistStock,
   useRemoveWatchlistStock,
 } from '../hooks/useWatchlistMutations';
+import StockDetailsModal from './StockDetailsModal';
 import WatchlistSearchBar from './WatchlistSearchBar';
 import WatchlistStockCard from './WatchlistStockCard';
 
@@ -21,6 +22,7 @@ function WatchlistSection() {
   const addMutation = useAddWatchlistStock();
   const removeMutation = useRemoveWatchlistStock();
   const [removingSymbol, setRemovingSymbol] = useState<string | null>(null);
+  const [detailsSymbol, setDetailsSymbol] = useState<string | null>(null);
 
   const handleAdd = (symbol: string) => {
     addMutation.mutate({ symbol });
@@ -95,6 +97,7 @@ function WatchlistSection() {
                 key={stock.id}
                 stock={stock}
                 onRemove={handleRemove}
+                onDetails={setDetailsSymbol}
                 isRemoving={
                   removeMutation.isPending && removingSymbol === stock.symbol
                 }
@@ -103,6 +106,12 @@ function WatchlistSection() {
           </Stack>
         )}
       </VStack>
+
+      <StockDetailsModal
+        symbol={detailsSymbol}
+        open={detailsSymbol !== null}
+        onClose={() => setDetailsSymbol(null)}
+      />
     </Box>
   );
 }

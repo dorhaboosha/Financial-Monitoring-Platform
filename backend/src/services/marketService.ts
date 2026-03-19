@@ -24,13 +24,20 @@ export const marketService = {
 
   searchStocks: async (query: string): Promise<StockSearchItem[]> => {
     const response = await finnhubService.searchSymbols(query);
+    const seen = new Set<string>();
 
-    return response.result.map((item) => ({
-      symbol: item.symbol,
-      displaySymbol: item.displaySymbol,
-      description: item.description,
-      type: item.type,
-    }));
+    return response.result.reduce<StockSearchItem[]>((acc, item) => {
+      if (!seen.has(item.symbol)) {
+        seen.add(item.symbol);
+        acc.push({
+          symbol: item.symbol,
+          displaySymbol: item.displaySymbol,
+          description: item.description,
+          type: item.type,
+        });
+      }
+      return acc;
+    }, []);
   },
 
   getStockDetails: async (symbol: string): Promise<StockDetailsResponse> => {

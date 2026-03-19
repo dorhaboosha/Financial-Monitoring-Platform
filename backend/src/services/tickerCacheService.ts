@@ -22,9 +22,19 @@ const isUsCommonStock = (item: FinnhubStockSymbolItem): boolean => {
   return hasSymbol && looksNormalSymbol && typeMatches;
 };
 
+const deduplicateBySymbol = (items: FinnhubStockSymbolItem[]): FinnhubStockSymbolItem[] => {
+  const seen = new Set<string>();
+
+  return items.filter((item) => {
+    if (seen.has(item.symbol)) return false;
+    seen.add(item.symbol);
+    return true;
+  });
+};
+
 const refreshSymbolPool = async (): Promise<void> => {
   const symbols = await finnhubService.getStockSymbolsByExchange('US');
-  cachedSymbolPool = symbols.filter(isUsCommonStock);
+  cachedSymbolPool = deduplicateBySymbol(symbols.filter(isUsCommonStock));
   lastSymbolPoolRefreshAt = Date.now();
 };
 

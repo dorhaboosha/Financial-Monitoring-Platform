@@ -1,5 +1,6 @@
 import apiClient from './apiClient';
 import type {
+  StockDetailsResponse,
   StockSearchResponse,
   TickerStocksResponse,
 } from '../types/market';
@@ -20,6 +21,11 @@ export const marketService = {
       params: { q: query },
     });
 
+    return response.data;
+  },
+
+  getStockDetails: async (symbol: string): Promise<StockDetailsResponse> => {
+    const response = await apiClient.get(`/api/market/stocks/${symbol}`);
     return response.data;
   },
 };

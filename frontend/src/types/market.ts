@@ -22,3 +22,24 @@ export interface StockSearchResponse {
   success: boolean;
   data: StockSearchItem[];
 }
+
+export interface StockDetails {
+  symbol: string;
+  companyName: string;
+  currentPrice: number;
+  change: number;
+  percentChange: number;
+  high: number;
+  low: number;
+  open: number;
+  previousClose: number;
+  exchange?: string;
+  industry?: string;
+  logo?: string;
+  website?: string;
+}
+
+export interface StockDetailsResponse {
+  success: boolean;
+  data: StockDetails;
+}
