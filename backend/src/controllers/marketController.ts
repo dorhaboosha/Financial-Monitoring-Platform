@@ -71,3 +71,20 @@ export const getStockDetails = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getSearchSuggestions = async (_req: Request, res: Response) => {
+  try {
+    const stocks = await marketService.getSearchSuggestions();
+
+    return res.status(200).json({
+      success: true,
+      data: stocks,
+    });
+  } catch (error) {
+    console.error('Failed to fetch search suggestions:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch search suggestions',
+    });
+  }
+};

@@ -11,6 +11,17 @@ export const marketService = {
     return tickerCacheService.getTickerBatch();
   },
 
+  getSearchSuggestions: async (): Promise<StockSearchItem[]> => {
+    const suggestions = await tickerCacheService.getRandomSymbolSuggestions(5);
+
+    return suggestions.map((item) => ({
+      symbol: item.symbol,
+      displaySymbol: item.displaySymbol,
+      description: item.description,
+      type: item.type,
+    }));
+  },
+
   searchStocks: async (query: string): Promise<StockSearchItem[]> => {
     const response = await finnhubService.searchSymbols(query);
 

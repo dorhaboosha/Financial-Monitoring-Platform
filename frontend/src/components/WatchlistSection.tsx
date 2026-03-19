@@ -13,7 +13,7 @@ import {
   useAddWatchlistStock,
   useRemoveWatchlistStock,
 } from '../hooks/useWatchlistMutations';
-import AddWatchlistStockForm from './AddWatchlistStockForm';
+import WatchlistSearchBar from './WatchlistSearchBar';
 import WatchlistStockCard from './WatchlistStockCard';
 
 function WatchlistSection() {
@@ -41,7 +41,7 @@ function WatchlistSection() {
       <VStack align="stretch" gap={4}>
         <Heading size="md">My Watchlist</Heading>
 
-        <AddWatchlistStockForm
+        <WatchlistSearchBar
           onAdd={handleAdd}
           isAdding={addMutation.isPending}
         />

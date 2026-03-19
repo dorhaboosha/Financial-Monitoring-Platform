@@ -51,9 +51,15 @@ const buildTickerBatch = async (): Promise<void> => {
       };
     })
   );
-  
-  cachedTickerBatch = batch.filter((item) =>
-    typeof item.currentPrice === 'number' && Number.isFinite(item.currentPrice) && typeof item.percentChange === 'number' && Number.isFinite(item.percentChange) );
+
+  cachedTickerBatch = batch.filter(
+    (item) =>
+      typeof item.currentPrice === 'number' &&
+      Number.isFinite(item.currentPrice) &&
+      typeof item.percentChange === 'number' &&
+      Number.isFinite(item.percentChange)
+  );
+
   lastTickerBatchRefreshAt = Date.now();
 };
 
@@ -66,7 +72,10 @@ export const tickerCacheService = {
   refreshSymbolPoolIfNeeded: async (): Promise<void> => {
     const now = Date.now();
 
-    if (now - lastSymbolPoolRefreshAt >= SYMBOL_POOL_REFRESH_MS || cachedSymbolPool.length === 0) {
+    if (
+      now - lastSymbolPoolRefreshAt >= SYMBOL_POOL_REFRESH_MS ||
+      cachedSymbolPool.length === 0
+    ) {
       await refreshSymbolPool();
     }
   },
@@ -76,7 +85,10 @@ export const tickerCacheService = {
 
     const now = Date.now();
 
-    if (now - lastTickerBatchRefreshAt >= TICKER_BATCH_REFRESH_MS || cachedTickerBatch.length === 0) {
+    if (
+      now - lastTickerBatchRefreshAt >= TICKER_BATCH_REFRESH_MS ||
+      cachedTickerBatch.length === 0
+    ) {
       await buildTickerBatch();
     }
   },
@@ -84,5 +96,10 @@ export const tickerCacheService = {
   getTickerBatch: async (): Promise<TickerStockItem[]> => {
     await tickerCacheService.refreshTickerBatchIfNeeded();
     return cachedTickerBatch;
+  },
+
+  getRandomSymbolSuggestions: async (count: number = 5) => {
+    await tickerCacheService.refreshSymbolPoolIfNeeded();
+    return pickRandomBatch(cachedSymbolPool, count);
   },
 };
