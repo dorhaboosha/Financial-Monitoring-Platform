@@ -7,6 +7,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useWatchlist } from '../hooks/useWatchlist';
 import {
   useAddWatchlistStock,
@@ -19,13 +20,20 @@ function WatchlistSection() {
   const { data, isLoading, isError, error } = useWatchlist();
   const addMutation = useAddWatchlistStock();
   const removeMutation = useRemoveWatchlistStock();
+  const [removingSymbol, setRemovingSymbol] = useState<string | null>(null);
 
   const handleAdd = (symbol: string) => {
     addMutation.mutate({ symbol });
   };
 
   const handleRemove = (symbol: string) => {
-    removeMutation.mutate(symbol);
+    setRemovingSymbol(symbol);
+
+    removeMutation.mutate(symbol, {
+      onSettled: () => {
+        setRemovingSymbol(null);
+      },
+    });
   };
 
   return (
@@ -87,7 +95,9 @@ function WatchlistSection() {
                 key={stock.id}
                 stock={stock}
                 onRemove={handleRemove}
-                isRemoving={removeMutation.isPending}
+                isRemoving={
+                  removeMutation.isPending && removingSymbol === stock.symbol
+                }
               />
             ))}
           </Stack>

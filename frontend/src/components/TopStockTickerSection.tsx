@@ -2,25 +2,35 @@ import {
   Alert,
   Box,
   Heading,
+  Marquee,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useTickerStocks } from '../hooks/useTickerStocks';
 import { useAddWatchlistStock } from '../hooks/useWatchlistMutations';
 import TickerStockItem from './TickerStockItem';
-import "./TopStockTicker.css";
 
 function TopStockTickerSection() {
   const { data, isLoading, isError, error } = useTickerStocks();
   const addMutation = useAddWatchlistStock();
+  const [addingSymbol, setAddingSymbol] = useState<string | null>(null);
 
   const handleAdd = (symbol: string) => {
-    addMutation.mutate({ symbol });
+    setAddingSymbol(symbol);
+
+    addMutation.mutate(
+      { symbol },
+      {
+        onSettled: () => {
+          setAddingSymbol(null);
+        },
+      }
+    );
   };
 
   const tickerStocks = data?.data ?? [];
-  const duplicatedStocks = [...tickerStocks, ...tickerStocks];
 
   return (
     <Box width="100%">
@@ -56,18 +66,23 @@ function TopStockTickerSection() {
         ) : !tickerStocks.length ? (
           <Text color="gray.500">No ticker stocks available.</Text>
         ) : (
-          <Box className="ticker-wrapper" pb={2}>
-            <Box className="ticker-track">
-              {duplicatedStocks.map((stock, index) => (
-                <TickerStockItem
-                  key={`${stock.symbol}-${index}`}
-                  stock={stock}
-                  onAdd={handleAdd}
-                  isAdding={addMutation.isPending}
-                />
-              ))}
-            </Box>
-          </Box>
+          <Marquee.Root speed={45} pauseOnInteraction>
+            <Marquee.Viewport py={2}>
+              <Marquee.Content gap="4">
+                {tickerStocks.map((stock) => (
+                  <Marquee.Item key={stock.symbol}>
+                    <TickerStockItem
+                      stock={stock}
+                      onAdd={handleAdd}
+                      isAdding={
+                        addMutation.isPending && addingSymbol === stock.symbol
+                      }
+                    />
+                  </Marquee.Item>
+                ))}
+              </Marquee.Content>
+            </Marquee.Viewport>
+          </Marquee.Root>
         )}
       </VStack>
     </Box>
