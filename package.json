@@ -13,9 +13,9 @@
     "backend:dev": "npm run dev --prefix backend",
     "backend:build": "npm run build --prefix backend",
     
-    "prisma:generate": "dotenv -e backend/.env -- npm run prisma:generate --prefix backend",
-    "prisma:migrate": "dotenv -e backend/.env -- npm run prisma:migrate --prefix backend",
-    "prisma:studio": "dotenv -e backend/.env -- npm run prisma:studio --prefix backend",
+    "prisma:generate": "npx dotenv-cli -e backend/.env -- npm run prisma:generate --prefix backend",
+    "prisma:migrate": "npx dotenv-cli -e backend/.env -- npm run prisma:migrate --prefix backend",
+    "prisma:studio": "npx dotenv-cli -e backend/.env -- npm run prisma:studio --prefix backend",
     
     "setup": "npm run db:up && npm run prisma:generate && npm run prisma:migrate",
     "dev": "npm run db:up && npm run prisma:generate && concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
