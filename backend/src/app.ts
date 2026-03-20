@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import alertRoutes from './routes/alertRoutes';
 import healthRoutes from './routes/healthRoutes';
 import sessionRoutes from './routes/sessionRoutes';
 import marketRoutes from './routes/marketRoutes';
@@ -23,5 +24,6 @@ app.use('/', healthRoutes);
 app.use('/', sessionRoutes);
 app.use('/', marketRoutes);
 app.use('/', watchlistRoutes);
+app.use('/', alertRoutes);
 
 export default app;
