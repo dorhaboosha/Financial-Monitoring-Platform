@@ -1,15 +1,8 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
 export const sessionService = {
   initializeSession: async () => {
-    const response = await axios.post(
-      'http://localhost:5000/api/session/init',
-      {},
-      {
-        withCredentials: true,
-      }
-    );
-
+    const response = await apiClient.post('/api/session/init', {});
     return response.data;
   },
 };

@@ -1,10 +1,21 @@
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Container, Heading, Spinner, Text, VStack } from '@chakra-ui/react';
 import TopStockTickerSection from './components/TopStockTickerSection';
 import WatchlistSection from './components/WatchlistSection';
 import { useInitializeSession } from './hooks/useInitializeSession';
 
 function App() {
-  useInitializeSession();
+  const { ready } = useInitializeSession();
+
+  if (!ready) {
+    return (
+      <Container maxW="6xl" py={10}>
+        <VStack py={20} gap={4}>
+          <Spinner size="xl" />
+          <Text color="gray.500">Connecting to server...</Text>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW="6xl" py={10}>

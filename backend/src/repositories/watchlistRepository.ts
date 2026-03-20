@@ -4,7 +4,7 @@ export const watchlistRepository = {
   findAllByUserId: async (userId: string) => {
     return prisma.watchlistStock.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     });
   },
 

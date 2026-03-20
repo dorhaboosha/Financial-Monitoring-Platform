@@ -2,12 +2,12 @@ import {
   Alert,
   Box,
   Heading,
+  SimpleGrid,
   Spinner,
-  Stack,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useWatchlist } from '../hooks/useWatchlist';
 import {
   useAddWatchlistStock,
@@ -23,6 +23,28 @@ function WatchlistSection() {
   const removeMutation = useRemoveWatchlistStock();
   const [removingSymbol, setRemovingSymbol] = useState<string | null>(null);
   const [detailsSymbol, setDetailsSymbol] = useState<string | null>(null);
+
+  const stocks = data?.data ?? [];
+
+  const [readySymbols, setReadySymbols] = useState<Set<string>>(new Set());
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+
+  const handleCardReady = useCallback((symbol: string) => {
+    setReadySymbols((prev) => {
+      if (prev.has(symbol)) return prev;
+      const next = new Set(prev);
+      next.add(symbol);
+      return next;
+    });
+  }, []);
+
+  const allCurrentReady = stocks.length > 0 && stocks.every((s) => readySymbols.has(s.symbol));
+
+  if (allCurrentReady && !initialLoadDone) {
+    setInitialLoadDone(true);
+  }
+
+  const showGrid = initialLoadDone || allCurrentReady;
 
   const handleAdd = (symbol: string) => {
     addMutation.mutate({ symbol });
@@ -77,7 +99,10 @@ function WatchlistSection() {
         )}
 
         {isLoading ? (
-          <Spinner />
+          <VStack py={10}>
+            <Spinner size="lg" />
+            <Text color="gray.500" fontSize="sm">Loading watchlist...</Text>
+          </VStack>
         ) : isError ? (
           <Alert.Root status="error">
             <Alert.Indicator />
@@ -88,22 +113,39 @@ function WatchlistSection() {
               </Alert.Description>
             </Alert.Content>
           </Alert.Root>
-        ) : data?.data.length === 0 ? (
+        ) : stocks.length === 0 ? (
           <Text color="gray.500">Your watchlist is currently empty.</Text>
         ) : (
-          <Stack gap={3}>
-            {data?.data.map((stock) => (
-              <WatchlistStockCard
-                key={stock.id}
-                stock={stock}
-                onRemove={handleRemove}
-                onDetails={setDetailsSymbol}
-                isRemoving={
-                  removeMutation.isPending && removingSymbol === stock.symbol
-                }
-              />
-            ))}
-          </Stack>
+          <Box position="relative">
+            {!showGrid && (
+              <VStack py={10}>
+                <Spinner size="lg" />
+                <Text color="gray.500" fontSize="sm">Loading stock data...</Text>
+              </VStack>
+            )}
+
+            <Box
+              opacity={showGrid ? 1 : 0}
+              transition="opacity 0.2s ease-in"
+              position={showGrid ? 'relative' : 'absolute'}
+              visibility={showGrid ? 'visible' : 'hidden'}
+            >
+              <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} gap={4}>
+                {stocks.map((stock) => (
+                  <WatchlistStockCard
+                    key={stock.id}
+                    stock={stock}
+                    onRemove={handleRemove}
+                    onDetails={setDetailsSymbol}
+                    onReady={handleCardReady}
+                    isRemoving={
+                      removeMutation.isPending && removingSymbol === stock.symbol
+                    }
+                  />
+                ))}
+              </SimpleGrid>
+            </Box>
+          </Box>
         )}
       </VStack>
 

@@ -9,13 +9,15 @@ import {
   Portal,
   Separator,
   SimpleGrid,
+  Skeleton,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useStockDetails } from '../hooks/useStockDetails';
-import type { StockDetails } from '../types/market';
+import { useStockInsights } from '../hooks/useStockInsights';
+import type { StockDetails, StockInsights } from '../types/market';
 
 interface StockDetailsModalProps {
   symbol: string | null;
@@ -42,15 +44,244 @@ function StockDetailRow({
   );
 }
 
+function formatMarketCap(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}T`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(2)}B`;
+  return `$${value.toFixed(2)}M`;
+}
+
+function KeyMetricsSection({ insights }: { insights: StockInsights }) {
+  const { metrics } = insights;
+  const hasAny =
+    metrics.peRatio != null ||
+    metrics.weekHigh52 != null ||
+    metrics.weekLow52 != null ||
+    metrics.beta != null ||
+    metrics.dividendYield != null;
+
+  if (!hasAny) return null;
+
+  return (
+    <>
+      <Separator />
+      <Box>
+        <Text fontSize="sm" fontWeight="semibold" mb={2}>
+          Key Metrics
+        </Text>
+        <SimpleGrid columns={2} gap={2}>
+          <Box>
+            {metrics.peRatio != null && (
+              <StockDetailRow label="P/E Ratio" value={metrics.peRatio.toFixed(2)} />
+            )}
+            {metrics.weekHigh52 != null && (
+              <StockDetailRow label="52W High" value={`$${metrics.weekHigh52.toFixed(2)}`} />
+            )}
+            {metrics.beta != null && (
+              <StockDetailRow label="Beta" value={metrics.beta.toFixed(2)} />
+            )}
+          </Box>
+          <Box>
+            {metrics.dividendYield != null && (
+              <StockDetailRow label="Dividend Yield" value={`${metrics.dividendYield.toFixed(2)}%`} />
+            )}
+            {metrics.weekLow52 != null && (
+              <StockDetailRow label="52W Low" value={`$${metrics.weekLow52.toFixed(2)}`} />
+            )}
+          </Box>
+        </SimpleGrid>
+      </Box>
+    </>
+  );
+}
+
+function RecommendationSection({ insights }: { insights: StockInsights }) {
+  const { recommendation, priceTarget } = insights;
+  if (!recommendation && !priceTarget) return null;
+
+  const total = recommendation
+    ? recommendation.strongBuy + recommendation.buy + recommendation.hold + recommendation.sell + recommendation.strongSell
+    : 0;
+
+  return (
+    <>
+      <Separator />
+      <Box>
+        <Text fontSize="sm" fontWeight="semibold" mb={2}>
+          Analyst Outlook
+        </Text>
+
+        {recommendation && total > 0 && (
+          <Box mb={3}>
+            <HStack gap={1} mb={1.5} flexWrap="wrap">
+              {recommendation.strongBuy > 0 && (
+                <Badge colorPalette="green" size="sm">
+                  Strong Buy {recommendation.strongBuy}
+                </Badge>
+              )}
+              {recommendation.buy > 0 && (
+                <Badge colorPalette="green" variant="outline" size="sm">
+                  Buy {recommendation.buy}
+                </Badge>
+              )}
+              {recommendation.hold > 0 && (
+                <Badge colorPalette="yellow" size="sm">
+                  Hold {recommendation.hold}
+                </Badge>
+              )}
+              {recommendation.sell > 0 && (
+                <Badge colorPalette="red" variant="outline" size="sm">
+                  Sell {recommendation.sell}
+                </Badge>
+              )}
+              {recommendation.strongSell > 0 && (
+                <Badge colorPalette="red" size="sm">
+                  Strong Sell {recommendation.strongSell}
+                </Badge>
+              )}
+            </HStack>
+            <Box h="6px" borderRadius="full" overflow="hidden" display="flex" bg="gray.100">
+              {recommendation.strongBuy > 0 && (
+                <Box bg="green.600" flex={recommendation.strongBuy / total} />
+              )}
+              {recommendation.buy > 0 && (
+                <Box bg="green.400" flex={recommendation.buy / total} />
+              )}
+              {recommendation.hold > 0 && (
+                <Box bg="yellow.400" flex={recommendation.hold / total} />
+              )}
+              {recommendation.sell > 0 && (
+                <Box bg="red.400" flex={recommendation.sell / total} />
+              )}
+              {recommendation.strongSell > 0 && (
+                <Box bg="red.600" flex={recommendation.strongSell / total} />
+              )}
+            </Box>
+            <Text fontSize="xs" color="gray.400" mt={1}>
+              {total} analysts &middot; {recommendation.period}
+            </Text>
+          </Box>
+        )}
+
+        {priceTarget && (
+          <SimpleGrid columns={3} gap={2} textAlign="center">
+            <Box p={2} bg="red.50" borderRadius="md">
+              <Text fontSize="xs" color="gray.500">Low</Text>
+              <Text fontWeight="bold" fontSize="sm">${priceTarget.targetLow.toFixed(2)}</Text>
+            </Box>
+            <Box p={2} bg="blue.50" borderRadius="md">
+              <Text fontSize="xs" color="gray.500">Median</Text>
+              <Text fontWeight="bold" fontSize="sm">${priceTarget.targetMedian.toFixed(2)}</Text>
+            </Box>
+            <Box p={2} bg="green.50" borderRadius="md">
+              <Text fontSize="xs" color="gray.500">High</Text>
+              <Text fontWeight="bold" fontSize="sm">${priceTarget.targetHigh.toFixed(2)}</Text>
+            </Box>
+          </SimpleGrid>
+        )}
+      </Box>
+    </>
+  );
+}
+
+function CompanyNewsSection({ insights }: { insights: StockInsights }) {
+  const { news } = insights;
+  if (news.length === 0) return null;
+
+  return (
+    <>
+      <Separator />
+      <Box>
+        <Text fontSize="sm" fontWeight="semibold" mb={2}>
+          Recent News
+        </Text>
+        <VStack align="stretch" gap={2}>
+          {news.map((item) => (
+            <Link
+              key={item.url}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Box
+                p={2.5}
+                borderWidth="1px"
+                borderRadius="md"
+                _hover={{ bg: 'gray.50' }}
+                transition="background 0.1s ease"
+              >
+                <Text fontSize="sm" fontWeight="medium" lineClamp={2}>
+                  {item.headline}
+                </Text>
+                <HStack mt={1} gap={2}>
+                  <Text fontSize="xs" color="gray.400">
+                    {item.source}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400">
+                    {new Date(item.datetime * 1000).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                </HStack>
+              </Box>
+            </Link>
+          ))}
+        </VStack>
+      </Box>
+    </>
+  );
+}
+
+function InsightsLoadingSkeleton() {
+  return (
+    <>
+      <Separator />
+      <VStack align="stretch" gap={3}>
+        <Skeleton height="14px" width="30%" />
+        <SimpleGrid columns={2} gap={2}>
+          <VStack gap={1}>
+            <Skeleton height="12px" width="100%" />
+            <Skeleton height="12px" width="100%" />
+          </VStack>
+          <VStack gap={1}>
+            <Skeleton height="12px" width="100%" />
+            <Skeleton height="12px" width="100%" />
+          </VStack>
+        </SimpleGrid>
+      </VStack>
+      <Separator />
+      <VStack align="stretch" gap={3}>
+        <Skeleton height="14px" width="25%" />
+        <Skeleton height="6px" width="100%" borderRadius="full" />
+        <SimpleGrid columns={3} gap={2}>
+          <Skeleton height="48px" borderRadius="md" />
+          <Skeleton height="48px" borderRadius="md" />
+          <Skeleton height="48px" borderRadius="md" />
+        </SimpleGrid>
+      </VStack>
+      <Separator />
+      <VStack align="stretch" gap={2}>
+        <Skeleton height="14px" width="25%" />
+        <Skeleton height="56px" borderRadius="md" />
+        <Skeleton height="56px" borderRadius="md" />
+      </VStack>
+    </>
+  );
+}
+
 function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
   const { data, isLoading, isError } = useStockDetails(open ? symbol : null);
+  const { data: insightsData, isLoading: insightsLoading } = useStockInsights(open ? symbol : null);
   const stock = data?.data;
+  const insights = insightsData?.data;
 
   const lastStockRef = useRef<StockDetails | null>(null);
-  if (stock) {
-    lastStockRef.current = stock;
-  }
+  const lastInsightsRef = useRef<StockInsights | null>(null);
+  if (stock) lastStockRef.current = stock;
+  if (insights) lastInsightsRef.current = insights;
   const displayStock = stock ?? lastStockRef.current;
+  const displayInsights = insights ?? lastInsightsRef.current;
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -70,13 +301,13 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
       onOpenChange={(details) => {
         if (!details.open) onClose();
       }}
-      size="md"
+      size="lg"
       placement="center"
     >
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content>
+          <Dialog.Content maxH="85vh" overflow="auto">
             <Dialog.Header>
               <Dialog.Title>Stock Details</Dialog.Title>
               <Dialog.CloseTrigger asChild>
@@ -84,7 +315,7 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
               </Dialog.CloseTrigger>
             </Dialog.Header>
 
-            <Dialog.Body>
+            <Dialog.Body pb={6}>
               {isError ? (
                 <VStack py={10}>
                   <Text color="red.500">
@@ -125,7 +356,7 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
                               onError={() => setImageLoaded(true)}
                             />
                           )}
-                          <VStack align="start" gap={0}>
+                          <VStack align="start" gap={0} flex={1}>
                             <Text fontWeight="bold" fontSize="xl">
                               {displayStock.symbol}
                             </Text>
@@ -133,7 +364,7 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
                               {displayStock.companyName}
                             </Text>
                             {(displayStock.exchange || displayStock.industry) && (
-                              <HStack gap={2} mt={1}>
+                              <HStack gap={2} mt={1} flexWrap="wrap">
                                 {displayStock.exchange && (
                                   <Badge size="sm" variant="subtle">
                                     {displayStock.exchange}
@@ -189,6 +420,12 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
                               label="High"
                               value={`$${displayStock.high.toFixed(2)}`}
                             />
+                            {displayStock.marketCap != null && displayStock.marketCap > 0 && (
+                              <StockDetailRow
+                                label="Market Cap"
+                                value={formatMarketCap(displayStock.marketCap)}
+                              />
+                            )}
                           </Box>
                           <Box>
                             <StockDetailRow
@@ -201,6 +438,16 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
                             />
                           </Box>
                         </SimpleGrid>
+
+                        {insightsLoading && !displayInsights ? (
+                          <InsightsLoadingSkeleton />
+                        ) : displayInsights ? (
+                          <>
+                            <KeyMetricsSection insights={displayInsights} />
+                            <RecommendationSection insights={displayInsights} />
+                            <CompanyNewsSection insights={displayInsights} />
+                          </>
+                        ) : null}
 
                         {displayStock.website && (
                           <>

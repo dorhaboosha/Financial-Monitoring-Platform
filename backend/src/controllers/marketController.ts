@@ -72,6 +72,32 @@ export const getStockDetails = async (req: Request, res: Response) => {
   }
 };
 
+export const getStockInsights = async (req: Request, res: Response) => {
+  try {
+    const rawSymbol = req.params.symbol;
+
+    if (!rawSymbol || Array.isArray(rawSymbol)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Stock symbol is required',
+      });
+    }
+
+    const insights = await marketService.getStockInsights(rawSymbol);
+
+    return res.status(200).json({
+      success: true,
+      data: insights,
+    });
+  } catch (error) {
+    console.error('Failed to fetch stock insights:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch stock insights',
+    });
+  }
+};
+
 export const getSearchSuggestions = async (_req: Request, res: Response) => {
   try {
     const stocks = await marketService.getSearchSuggestions();

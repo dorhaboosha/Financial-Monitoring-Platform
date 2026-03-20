@@ -45,3 +45,40 @@ export interface FinnhubQuoteResponse {
     symbol: string;
     type: string;
   }
+
+  export interface FinnhubBasicFinancialsResponse {
+    metric: Record<string, number | string | null>;
+    metricType: string;
+    symbol: string;
+  }
+
+  export interface FinnhubRecommendationTrend {
+    buy: number;
+    hold: number;
+    sell: number;
+    strongBuy: number;
+    strongSell: number;
+    period: string;
+    symbol: string;
+  }
+
+  export interface FinnhubPriceTargetResponse {
+    lastUpdated: string;
+    symbol: string;
+    targetHigh: number;
+    targetLow: number;
+    targetMean: number;
+    targetMedian: number;
+  }
+
+  export interface FinnhubCompanyNewsItem {
+    category: string;
+    datetime: number;
+    headline: string;
+    id: number;
+    image: string;
+    related: string;
+    source: string;
+    summary: string;
+    url: string;
+  }

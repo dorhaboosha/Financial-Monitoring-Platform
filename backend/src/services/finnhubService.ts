@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { env } from '../config/env';
 import {
+  FinnhubBasicFinancialsResponse,
+  FinnhubCompanyNewsItem,
   FinnhubCompanyProfileResponse,
+  FinnhubPriceTargetResponse,
   FinnhubQuoteResponse,
+  FinnhubRecommendationTrend,
   FinnhubStockSymbolItem,
   FinnhubSymbolSearchResponse,
 } from '../types/finnhub';
@@ -54,6 +58,53 @@ export const finnhubService = {
     const response = await finnhubClient.get('/stock/symbol', {
       params: {
         exchange,
+        ...getAuthParams(),
+      },
+    });
+
+    return response.data;
+  },
+
+  getBasicFinancials: async (symbol: string): Promise<FinnhubBasicFinancialsResponse> => {
+    const response = await finnhubClient.get('/stock/metric', {
+      params: {
+        symbol,
+        metric: 'all',
+        ...getAuthParams(),
+      },
+    });
+
+    return response.data;
+  },
+
+  getRecommendationTrends: async (symbol: string): Promise<FinnhubRecommendationTrend[]> => {
+    const response = await finnhubClient.get('/stock/recommendation', {
+      params: {
+        symbol,
+        ...getAuthParams(),
+      },
+    });
+
+    return response.data;
+  },
+
+  getPriceTarget: async (symbol: string): Promise<FinnhubPriceTargetResponse> => {
+    const response = await finnhubClient.get('/stock/price-target', {
+      params: {
+        symbol,
+        ...getAuthParams(),
+      },
+    });
+
+    return response.data;
+  },
+
+  getCompanyNews: async (symbol: string, from: string, to: string): Promise<FinnhubCompanyNewsItem[]> => {
+    const response = await finnhubClient.get('/company-news', {
+      params: {
+        symbol,
+        from,
+        to,
         ...getAuthParams(),
       },
     });
