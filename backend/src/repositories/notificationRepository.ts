@@ -36,4 +36,14 @@ export const notificationRepository = {
       where: { id: notificationId, userId },
     });
   },
+
+  findRecentByAlertId: async (alertId: string, windowMs: number) => {
+    const since = new Date(Date.now() - windowMs);
+    return prisma.notification.findFirst({
+      where: {
+        alertId,
+        triggeredAt: { gte: since },
+      },
+    });
+  },
 };

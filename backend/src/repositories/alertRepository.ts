@@ -2,6 +2,12 @@ import { AlertType } from '@prisma/client';
 import prisma from '../config/prisma';
 
 export const alertRepository = {
+  findAllActive: async () => {
+    return prisma.alert.findMany({
+      where: { isActive: true },
+    });
+  },
+
   findAllByUserId: async (userId: string) => {
     return prisma.alert.findMany({
       where: { userId },
