@@ -18,6 +18,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useStockDetails } from '../hooks/useStockDetails';
 import { useStockInsights } from '../hooks/useStockInsights';
 import type { StockDetails, StockInsights } from '../types/market';
+import CreateAlertForm from './CreateAlertForm';
+import StockAlertsList from './StockAlertsList';
 
 interface StockDetailsModalProps {
   symbol: string | null;
@@ -466,17 +468,8 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
 
                         <Separator />
 
-                        <Box
-                          borderWidth="1px"
-                          borderStyle="dashed"
-                          borderRadius="md"
-                          p={4}
-                          textAlign="center"
-                        >
-                          <Text color="gray.400" fontSize="sm">
-                            Alert creation will be available here.
-                          </Text>
-                        </Box>
+                        <CreateAlertForm symbol={displayStock.symbol} />
+                        <StockAlertsList symbol={displayStock.symbol} />
                       </VStack>
                     )}
                   </Box>
