@@ -11,7 +11,10 @@ export const initializeSession = async (req: Request, res: Response) => {
     if (result.isNew || existingAnonymousId !== result.anonymousId) {
       res.cookie(env.anonymousCookieName, result.anonymousId, {
         httpOnly: true,
-        sameSite: 'lax',
+        // In production the frontend and backend are on different origins,
+        // so cookies must be SameSite=None + Secure.
+        // In development, SameSite=Lax works fine over HTTP.
+        sameSite: env.isProduction ? 'none' : 'lax',
         secure: env.isProduction,
         maxAge: 1000 * 60 * 60 * 24 * 30,
       });
