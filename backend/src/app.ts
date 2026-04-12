@@ -6,6 +6,7 @@ import healthRoutes from './routes/healthRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import sessionRoutes from './routes/sessionRoutes';
 import marketRoutes from './routes/marketRoutes';
+import summaryRoutes from './routes/summaryRoutes';
 import watchlistRoutes from './routes/watchlistRoutes';
 import { env } from './config/env';
 
@@ -27,5 +28,6 @@ app.use('/', marketRoutes);
 app.use('/', watchlistRoutes);
 app.use('/', alertRoutes);
 app.use('/', notificationRoutes);
+app.use('/', summaryRoutes);
 
 export default app;

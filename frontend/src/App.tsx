@@ -2,6 +2,7 @@ import { Box, Container, HStack, Heading, Spinner, Text, VStack } from '@chakra-
 import NotificationBell from './components/NotificationBell';
 import TopStockTickerSection from './components/TopStockTickerSection';
 import WatchlistSection from './components/WatchlistSection';
+import WatchlistSummary from './components/WatchlistSummary';
 import { useInitializeSession } from './hooks/useInitializeSession';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         </HStack>
 
         <TopStockTickerSection />
+        <WatchlistSummary />
         <WatchlistSection />
       </VStack>
     </Container>
