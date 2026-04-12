@@ -319,9 +319,13 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
 
             <Dialog.Body pb={6}>
               {isError ? (
-                <VStack py={10}>
-                  <Text color="red.500">
-                    Failed to load details for {symbol}.
+                <VStack py={12} gap={3}>
+                  <Text fontSize="2xl">⚠️</Text>
+                  <Text fontWeight="semibold" color="red.500">
+                    Failed to load details for {symbol}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">
+                    Please check your connection and try again.
                   </Text>
                 </VStack>
               ) : (
@@ -333,6 +337,7 @@ function StockDetailsModal({ symbol, open, onClose }: StockDetailsModalProps) {
                       inset={0}
                       zIndex={1}
                       bg="white"
+                      _dark={{ bg: 'gray.900' }}
                       justify="center"
                     >
                       <Spinner size="lg" />

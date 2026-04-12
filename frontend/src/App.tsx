@@ -22,14 +22,18 @@ function App() {
   return (
     <Container maxW="6xl" py={10}>
       <VStack align="stretch" gap={8}>
-        <HStack justify="space-between" align="start">
-          <Box>
-            <Heading mb={2}>Financial Monitoring Platform</Heading>
-            <Text color="gray.600">
+        <HStack justify="space-between" align="start" gap={4}>
+          <Box flex={1} minW={0}>
+            <Heading size={{ base: 'lg', md: 'xl' }} mb={1}>
+              Financial Monitoring Platform
+            </Heading>
+            <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>
               Track stocks, manage your watchlist, and receive smart in-app alerts.
             </Text>
           </Box>
-          <NotificationBell />
+          <Box flexShrink={0} pt={1}>
+            <NotificationBell />
+          </Box>
         </HStack>
 
         <TopStockTickerSection />

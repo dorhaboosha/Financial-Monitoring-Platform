@@ -76,16 +76,21 @@ function WatchlistSearchBar({
               setIsFocused(false);
             }, 100);
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleAddClick();
+          }}
+          disabled={isAdding}
           bg="white"
         />
 
         <Button
-          colorScheme="blue"
+          colorPalette="blue"
           onClick={handleAddClick}
           loading={isAdding}
+          disabled={isAdding || !inputValue.trim()}
           minW={{ md: '120px' }}
         >
-          Add
+          Add to Watchlist
         </Button>
       </Stack>
 

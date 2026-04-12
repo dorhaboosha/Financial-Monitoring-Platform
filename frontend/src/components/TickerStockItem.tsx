@@ -56,9 +56,10 @@ function TickerStockItem({
 
         <Button
           size="sm"
-          colorScheme="blue"
+          colorPalette="blue"
           onClick={() => onAdd(stock.symbol)}
           loading={isAdding}
+          disabled={isAdding}
         >
           Add to Watchlist
         </Button>

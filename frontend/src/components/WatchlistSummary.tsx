@@ -1,7 +1,6 @@
-import { Box, Button, HStack, Heading, Skeleton, Stat, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, HStack, Heading, Skeleton, Stat, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSummary } from '../hooks/useSummary';
-import { SUMMARY_QUERY_KEY } from '../hooks/useSummary';
+import { SUMMARY_QUERY_KEY, useSummary } from '../hooks/useSummary';
 
 function StatCard({
   label,

@@ -152,7 +152,8 @@ function NotificationBell() {
           position="absolute"
           top="calc(100% + 8px)"
           right={0}
-          w="340px"
+          w={{ base: 'calc(100vw - 32px)', sm: '340px' }}
+          maxW="340px"
           bg="white"
           borderWidth="1px"
           borderRadius="lg"

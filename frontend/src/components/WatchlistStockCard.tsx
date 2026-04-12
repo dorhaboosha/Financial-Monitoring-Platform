@@ -47,11 +47,11 @@ function WatchlistStockCard({
     <Card.Root
       width="100%"
       cursor="pointer"
-      _hover={{ shadow: 'md', borderColor: 'gray.300' }}
-      transition="all 0.15s ease"
+      borderColor="gray.200"
+      _hover={{ shadow: 'md', borderColor: 'blue.200' }}
+      transition="all 0.15s ease, opacity 0.2s ease-in"
       onClick={() => onDetails(stock.symbol)}
       opacity={isReady ? 1 : 0}
-      style={{ transition: 'opacity 0.2s ease-in' }}
     >
       <Card.Body p={4}>
         {!details ? (
