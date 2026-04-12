@@ -1,0 +1,50 @@
+databases:
+  - name: financial-monitoring-db
+    plan: free
+    region: oregon
+
+services:
+  # ── Backend (Node.js Web Service) ─────────────────────────────────────────
+  - type: web
+    name: financial-monitoring-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ANONYMOUS_COOKIE_NAME
+        value: anonymous_id
+      - key: DATABASE_URL
+        fromDatabase:
+          name: financial-monitoring-db
+          property: connectionString
+      # Set these manually in the Render dashboard after creating the service:
+      - key: FINNHUB_API_KEY
+        sync: false   # you will paste your key in the Render dashboard
+      - key: CLIENT_URL
+        sync: false   # set to your frontend URL once deployed, e.g. https://financial-monitoring-frontend.onrender.com
+
+  # ── Frontend (Static Site) ─────────────────────────────────────────────────
+  - type: static
+    name: financial-monitoring-frontend
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      # Redirect all routes to index.html so React Router / client-side routing works
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Set this to your backend URL once deployed,
+      # e.g. https://financial-monitoring-backend.onrender.com
+      - key: VITE_API_URL
+        sync: false
